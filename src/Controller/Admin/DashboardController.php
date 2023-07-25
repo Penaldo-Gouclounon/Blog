@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Category;
+use App\Entity\Couleur;
 use App\Entity\Post;
 use App\Entity\Product;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -44,15 +45,23 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkToCrud('Product', 'fas fa-bowl-rice', Product::class),
         ]); */
 
-        yield MenuItem::subMenu('PRODUCT',"fa fa-bars")->setSubItems([
+        yield MenuItem::section('PRODUCT');
+        yield MenuItem::subMenu('Actions',"fa fa-bars")->setSubItems([
             MenuItem::linkToCrud('Add product', 'fas fa-plus', Product::class)->setAction(Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show product', 'fas fa-eye', Product::class),
         ]);
 
-        yield MenuItem::subMenu('Category',"fa fa-bars")->setSubItems([
+        yield MenuItem::section('Categorry');
+        yield MenuItem::subMenu('Actions',"fa fa-bars")->setSubItems([
             MenuItem::linkToCrud('Add Category', 'fas fa-plus', Category::class)->setAction(Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show Categories', 'fas fa-eye', Category::class),
         ]);
+
+        /* yield MenuItem::subMenu('Couleur',"fa fa-bars")->setSubItems([
+            MenuItem::linkToCrud('Add Couleur', 'fas fa-plus', Couleur::class)->setAction(Crud::PAGE_NEW),
+            MenuItem::linkToCrud('Detail Couleur', 'fas fa-plus', Couleur::class)->setAction(Crud::PAGE_DETAIL),
+            MenuItem::linkToCrud('Show Couleur', 'fas fa-eye', Couleur::class),
+        ]); */
 
         /* MenuItem::linkToCrud('Show Main Category', 'fa fa-tags', Category::class)
             ->setAction('detail');

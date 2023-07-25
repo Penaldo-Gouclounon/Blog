@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -38,6 +40,9 @@ class Product
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\Column]
+    private ?bool $sold = null;
 
     public function getId(): ?int
     {
@@ -139,4 +144,17 @@ class Product
 
         return $this;
     }
+
+    public function isSold(): ?bool
+    {
+        return $this->sold;
+    }
+
+    public function setSold(bool $sold): static
+    {
+        $this->sold = $sold;
+
+        return $this;
+    }
+
 }
