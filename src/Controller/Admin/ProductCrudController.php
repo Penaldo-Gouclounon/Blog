@@ -14,14 +14,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -37,7 +42,18 @@ class ProductCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud;
+        return $crud
+        ->setEntityLabelInSingular('Conference Comment')
+        ->setEntityLabelInPlural('Conference Comments')
+        ;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+           ->add(EntityFilter::new('category'))
+           ->add(EntityFilter::new('tags'))
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -53,38 +69,45 @@ class ProductCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id')->hideOnForm(),
-            TextField::new('name'),
-            TextField::new('slug'),
+            IdField::new('id')->hideOnForm()->hideOnIndex(),
+            FormField::addRow('lg'),
+            FormField::addPanel('Detail Produit'),
+
+            TextField::new('name')->setColumns(4),
+            // ->setTemplatePath('admin/demo.html.twig'),
+            SlugField::new('slug')->setTargetFieldName('name')->setColumns(4)->setUnlockConfirmationMessage(
+                'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
+            ),
             // TextEditorField::new('content','Description'),
+
             TextareaField::new('content','Description'),
-            MoneyField::new('price')->setCurrency('EUR'),
-            AssociationField::new('category'),
-           /*  AssociationField::new('category')->setQueryBuilder(function(QueryBuilder $queryBuilder)
-            {
-                $queryBuilder->where('entity.sold = true');
-            }), */
-            // AssociationField::new('couleur'),
 
-            ImageField::new('image')
-                ->setBasePath(self::PRODUCT_BASE_PATH)
-                ->setUploadDir(self::PRODUCT_UPLOAD_DIR),
+           /*  FormField::addPanel('Contact information')
+            ->setIcon('phone')->addCssClass('optional')
+            ->setHelp('Phone number is preferred'), */
 
-            BooleanField::new('sold'),
-            DateTimeField::new('created_at'),
-            DateTimeField::new('updated_at')->hideOnForm(),
+            FormField::addPanel('Autre')->renderCollapsed(),
+                MoneyField::new('price')->setCurrency('EUR')->setColumns(3),
+                AssociationField::new('category')->setColumns(3),
+                AssociationField::new('tags')->setCssClass('color:success')->setColumns(3),
+
+            // FormField::addPanel('Contact information')->collapsible(),
+                ImageField::new('image')
+                    ->setBasePath(self::PRODUCT_BASE_PATH)
+                    ->setUploadDir(self::PRODUCT_UPLOAD_DIR)
+                    ->setColumns('col-sm-7'),
+                    // ->setColumns(7),
+
+                DateTimeField::new('created_at')->setColumns(3),
+                DateTimeField::new('updated_at')->hideOnForm(),
+                BooleanField::new('sold'),
         ];
+
+           
+
+            
     }
-
-     /* public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        
-        if ( !$entityInstance instanceof Proxy) return;
-
-        $entityInstance->setUpdatedAt(new \DateTimeImmutable);
-
-        parent::persistEntity($entityManager, $entityInstance);
-    } */ 
+ 
 
     public function duplicateProduct(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator,EntityManagerInterface $em) 
     {
@@ -102,13 +125,5 @@ class ProductCrudController extends AbstractCrudController
         return $this->redirect($url);
     }
 
-    /* public function persistEntity(EntityManagerInterface $em, $entityInstance): void
-    {
-        if ( !$entityInstance instanceof Proxy) return;
-
-        $entityInstance->setCreatedAt(new \DateTime);
-
-        parent::persistEntity($em, $entityInstance);
-    } */
     
 }

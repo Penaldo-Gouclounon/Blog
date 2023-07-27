@@ -44,51 +44,29 @@ class Product
     #[ORM\Column]
     private ?bool $sold = null;
 
-    public function getId(): ?int
+    #[ORM\ManyToMany(targetEntity: tag::class, inversedBy: 'products')]
+    private Collection $tags;
+
+    public function __construct()
     {
-        return $this->id;
+        $this->tags = new ArrayCollection();
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
+    public function getId(): ?int{return $this->id;}
 
-    public function setName(string $name): static
-    {
-        $this->name = $name;
+    public function getName(): ?string{return $this->name;}
 
-        return $this;
-    }
+    public function setName(string $name): static{$this->name = $name;return $this;}
 
-    public function getSlug(): ?string
-    {
-        return $this->slug;
-    }
+    public function getSlug(): ?string{return $this->slug;}
 
-    public function setSlug(string $slug): static
-    {
-        $this->slug = $slug;
+    public function setSlug(string $slug): static{$this->slug = $slug;return $this;}
 
-        return $this;
-    }
+    public function getContent(): ?string{return $this->content;}
 
-    public function getContent(): ?string
-    {
-        return $this->content;
-    }
+    public function setContent(string $content): static{$this->content = $content;return $this;}
 
-    public function setContent(string $content): static
-    {
-        $this->content = $content;
-
-        return $this;
-    }
-
-    public function getCategory(): ?category
-    {
-        return $this->category;
-    }
+    public function getCategory(): ?category{return $this->category;}
 
     public function setCategory(?category $category): static
     {
@@ -155,6 +133,35 @@ class Product
         $this->sold = $sold;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(tag $tag): static
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(tag $tag): static
+    {
+        $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->name;
     }
 
 }
