@@ -88,8 +88,8 @@ class ProductCrudController extends AbstractCrudController
 
             FormField::addPanel('Autre')->renderCollapsed(),
                 MoneyField::new('price')->setCurrency('EUR')->setColumns(3),
-                AssociationField::new('category')->setColumns(3),
-                AssociationField::new('tags')->setCssClass('color:success')->setColumns(3),
+                AssociationField::new('Category')->setColumns(3),
+                AssociationField::new('Tags')->setCssClass('color:success')->setColumns(3),
 
             // FormField::addPanel('Contact information')->collapsible(),
                 ImageField::new('image')

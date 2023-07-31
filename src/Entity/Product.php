@@ -27,7 +27,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?category $category = null;
+    private ?Category $Category = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $price = null;
@@ -44,12 +44,12 @@ class Product
     #[ORM\Column]
     private ?bool $sold = null;
 
-    #[ORM\ManyToMany(targetEntity: tag::class, inversedBy: 'products')]
-    private Collection $tags;
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'products')]
+    private Collection $Tags;
 
     public function __construct()
     {
-        $this->tags = new ArrayCollection();
+        $this->Tags = new ArrayCollection();
     }
 
     public function getId(): ?int{return $this->id;}
@@ -66,11 +66,11 @@ class Product
 
     public function setContent(string $content): static{$this->content = $content;return $this;}
 
-    public function getCategory(): ?category{return $this->category;}
+    public function getCategory(): ?Category{return $this->Category;}
 
-    public function setCategory(?category $category): static
+    public function setCategory(?Category $Category): static
     {
-        $this->category = $category;
+        $this->Category = $Category;
 
         return $this;
     }
@@ -136,25 +136,25 @@ class Product
     }
 
     /**
-     * @return Collection<int, tag>
+     * @return Collection<int, Tag>
      */
     public function getTags(): Collection
     {
-        return $this->tags;
+        return $this->Tags;
     }
 
-    public function addTag(tag $tag): static
+    public function addTag(Tag $Tag): static
     {
-        if (!$this->tags->contains($tag)) {
-            $this->tags->add($tag);
+        if (!$this->Tags->contains($Tag)) {
+            $this->Tags->add($Tag);
         }
 
         return $this;
     }
 
-    public function removeTag(tag $tag): static
+    public function removeTag(Tag $Tag): static
     {
-        $this->tags->removeElement($tag);
+        $this->Tags->removeElement($Tag);
 
         return $this;
     }
