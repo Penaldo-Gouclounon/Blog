@@ -60,11 +60,45 @@ class ProductCrudController extends AbstractCrudController
     {
         $duplicate= Action::new(self::DUPLICATE)
         ->linkToCrudAction('duplicateProduct')
-        ->setCssClass('btn btn-info');
-        return $actions
+        ->setCssClass('btn btn-info'); 
+        
+        $supprimerAction = Action::new('Supprimer',null,'fa fa-trash')
+        ->setTemplatePath('admin/supprimer_action.html.twig')
+        ->linkToCrudAction('Supprimer')
+        ->addCssClass('has-danger')
+        ->displayAsLink();
+        ;
+
+    return $actions
         ->add(Crud::PAGE_EDIT,$duplicate)
-        ->reorder(Crud::PAGE_EDIT,[self::DUPLICATE,Action::SAVE_AND_RETURN]);
+        ->disable( Action::DELETE)
+        ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
+            return $action
+            ->setIcon('fas fa-pencil')->setLabel('Edite');   
+        })
+        ->add(Crud::PAGE_INDEX,$supprimerAction)
+        ->reorder(Crud::PAGE_EDIT,[self::DUPLICATE,Action::SAVE_AND_RETURN])
+        ;
     }
+    public function sup(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
+    {
+        $question = $adminContext->getEntity()->getInstance();
+        if (!$question instanceof Product) {
+            throw new \LogicException('Entity is missing or not a Question');
+        }
+        $question->setSold(false);
+
+        $entityManager->flush();
+
+        $targetUrl = $adminUrlGenerator
+        ->setController(self::class)
+        ->setAction(Crud::PAGE_INDEX)
+        ->setEntityId($question->getId())
+        ->generateUrl();
+    return $this->redirect($targetUrl);
+
+    }
+
     
     public function configureFields(string $pageName): iterable
     {

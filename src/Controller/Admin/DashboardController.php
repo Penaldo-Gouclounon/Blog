@@ -39,7 +39,9 @@ class DashboardController extends AbstractDashboardController
     public function configureCrud(): Crud
     {
         return Crud::new()
-            ->setPaginatorPageSize(5)
+        ->renderContentMaximized()
+        // ->showEntityActionsInlined()
+        ->setPaginatorPageSize(5)
         ;
     }
 
