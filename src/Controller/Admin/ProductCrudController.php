@@ -27,6 +27,7 @@ use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -65,7 +66,7 @@ class ProductCrudController extends AbstractCrudController
         $supprimerAction = Action::new('Supprimer',null,'fa fa-trash')
         ->setTemplatePath('admin/supprimer_action.html.twig')
         ->linkToCrudAction('Supprimer')
-        ->addCssClass('has-danger')
+        ->addCssClass('text-danger')
         ->displayAsLink();
         ;
 
@@ -80,13 +81,15 @@ class ProductCrudController extends AbstractCrudController
         ->reorder(Crud::PAGE_EDIT,[self::DUPLICATE,Action::SAVE_AND_RETURN])
         ;
     }
-    public function sup(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
+    public function Supprimer(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
     {
         $question = $adminContext->getEntity()->getInstance();
         if (!$question instanceof Product) {
             throw new \LogicException('Entity is missing or not a Question');
         }
-        $question->setSold(false);
+       
+        $question->setSold(true);
+       
 
         $entityManager->flush();
 
