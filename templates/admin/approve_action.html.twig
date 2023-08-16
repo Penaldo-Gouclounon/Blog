@@ -2,14 +2,6 @@
 {# @var action \EasyCorp\Bundle\EasyAdminBundle\Dto\ActionDto #}
 {# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
 
-
-<form action="{{ action.linkUrl }}" method="POST" class="me-2">
+<form action="{{ action.linkUrl }}" method="POST">
     {{ include('@EasyAdmin/crud/action.html.twig') }}
 </form>
-
-
-{#  {% block delete_form %}
-    {{ include('@EasyAdmin/crud/includes/_delete_form.html.twig', with_context = false) }}
-{% endblock delete_form %} #}
-
-approve_action.html.twig

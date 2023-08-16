@@ -1,0 +1,32 @@
+
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}
+    Cauldron Overflow Dashboard
+{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col-6">
+            <h3>Latest products</h3>
+            <ol>
+                {% for product in latestProducts %}
+                    <li>
+                        <a href="{{ path('app_product_show', {'slug': product.slug}) }}">{{ product.name }}</a>
+                        <br>- {{ product.createdAt|date }}
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+        <div class="col-6">
+            <h3>Top Category</h3>
+            <ol>
+                {% for product in TopCategory %}
+                    <li>
+                        <a href="{{ path('app_product_show', {'slug': product.slug}) }}">{{ product.name }}</a> ({{ product.name }})
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+{% endblock %}

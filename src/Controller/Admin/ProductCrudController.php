@@ -2,10 +2,13 @@
 
 namespace App\Controller\Admin;
 
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+
 use App\Entity\Product;
-use Doctrine\DBAL\Query\QueryBuilder;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Persistence\Proxy;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -21,13 +24,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -46,61 +46,85 @@ class ProductCrudController extends AbstractCrudController
         return $crud
         ->setEntityLabelInSingular('Conference Comment')
         ->setEntityLabelInPlural('Conference Comments')
+        /* ->setDefaultSort([
+            'sold.enabled' => 'ASC',
+        ]) */
         ;
     }
 
-    public function configureFilters(Filters $filters): Filters
-    {
-        return $filters
-           ->add(EntityFilter::new('category'))
-           ->add(EntityFilter::new('tags'))
-        ;
-    }
 
     public function configureActions(Actions $actions): Actions
     {
-        $duplicate= Action::new(self::DUPLICATE)
-        ->linkToCrudAction('duplicateProduct')
-        ->setCssClass('btn btn-info'); 
-        
-        $supprimerAction = Action::new('Supprimer',null,'fa fa-trash')
-        ->setTemplatePath('admin/supprimer_action.html.twig')
-        ->linkToCrudAction('Supprimer')
-        ->addCssClass('text-danger')
-        ->displayAsLink();
-        ;
 
-    return $actions
-        ->add(Crud::PAGE_EDIT,$duplicate)
-        ->disable( Action::DELETE)
-        ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
-            return $action
-            ->setIcon('fas fa-pencil')->setLabel('Edite');   
-        })
-        ->add(Crud::PAGE_INDEX,$supprimerAction)
-        ->reorder(Crud::PAGE_EDIT,[self::DUPLICATE,Action::SAVE_AND_RETURN])
+        $approveAction = Action::new('approve')
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-check-circle')
+            ->displayAsButton()
+            ->addCssClass('btn btn-success')
+            ->setIcon('fa fa-check-circle')
+            ->setLabel('Approove')
+            ->linkToCrudAction('approve')
+            ->setTemplatePath('admin/approve_action.html.twig')
+            ->displayIf(static function (Product $question): bool {
+                return !$question->isSold();
+            });
+
+        return $actions
+            ->disable(Action::NEW)
+            ->disable( Action::DELETE)
+            ->add(Crud::PAGE_INDEX,Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $approveAction)
+            ->reorder(Crud::PAGE_INDEX,[Action::EDIT])
         ;
     }
-    public function Supprimer(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
+
+    public function approve(AdminContext $adminContext, EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator)
     {
         $question = $adminContext->getEntity()->getInstance();
         if (!$question instanceof Product) {
             throw new \LogicException('Entity is missing or not a Question');
         }
-       
         $question->setSold(true);
-       
 
         $entityManager->flush();
-
         $targetUrl = $adminUrlGenerator
-        ->setController(self::class)
-        ->setAction(Crud::PAGE_INDEX)
-        ->setEntityId($question->getId())
-        ->generateUrl();
-    return $this->redirect($targetUrl);
-
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->setEntityId($question->getId())
+            ->generateUrl();
+        return $this->redirect($targetUrl);
     }
+     /**
+     * @Route("/admin/article", name="admin_article_list")
+     */
+    /* public function list(ProductRepository $articleRepo)
+    {
+        
+    }
+
+    public function new(EntityManagerInterface $em, Request $request)
+    {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->addFlash('success', 'Article Created! Knowledge is power!');
+        }
+    } */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     
     public function configureFields(string $pageName): iterable
@@ -122,11 +146,13 @@ class ProductCrudController extends AbstractCrudController
            /*  FormField::addPanel('Contact information')
             ->setIcon('phone')->addCssClass('optional')
             ->setHelp('Phone number is preferred'), */
-
             FormField::addPanel('Autre')->renderCollapsed(),
+            // IntegerField::new('price')->setTemplatePath('admin/index.html.twig'),
                 MoneyField::new('price')->setCurrency('EUR')->setColumns(3),
-                AssociationField::new('Category')->setColumns(3),
-                AssociationField::new('Tags')->setCssClass('color:success')->setColumns(3),
+                AssociationField::new('Category')->setColumns(3)->autocomplete()->setCrudController(CategoryCrudController::class),
+                AssociationField::new('Tags')->setCssClass('color:success')->setColumns(3)->autocomplete()
+                ->onlyOnDetail(),
+                
 
             // FormField::addPanel('Contact information')->collapsible(),
                 ImageField::new('image')
@@ -138,12 +164,20 @@ class ProductCrudController extends AbstractCrudController
                 DateTimeField::new('created_at')->setColumns(3),
                 DateTimeField::new('updated_at')->hideOnForm(),
                 BooleanField::new('sold'),
+                  /*   ->andWhere('isSold :sold')
+                    ->setParameter('sold', false), */
         ];
-
-           
-
-            
     }
+
+    /* public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+        //    ->add(BooleanFilter::new('sold')->setFormTypeOption('expanded', true))
+        //    ->add('sold')
+           ->add(BooleanFilter::new('sold',false))
+        ;
+    } */
+
  
 
     public function duplicateProduct(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator,EntityManagerInterface $em) 

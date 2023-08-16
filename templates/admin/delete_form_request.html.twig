@@ -1,0 +1,24 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+<form class="d-none" method="post" id="delete-request">
+    <input type="hidden" name="token" value="{{ ea_csrf_token('ea-delete') }}" />
+</form>
+
+<div id="modal-delete" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>{{ 'easy.admin.modal.delete.title' | trans }}</h4>
+                <p>{{ 'easy.admin.modal.delete.content' | trans }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">
+                    <span class="btn-label">{{ 'easy.admin.modal.delete.cancel' |  trans }}</span>
+                </button>
+
+                <button type="button" data-bs-dismiss="modal" class="btn btn-warning" id="modal-delete-button" form="delete-request">
+                    <span class="btn-label">{{ 'easy.admin.modal.delete.submit' | trans }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

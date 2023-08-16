@@ -11,17 +11,33 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+
+use App\Repository\ProductRepository;
 
 class DashboardController extends AbstractDashboardController
 {
+    private ProductRepository $productRepository;
+
+    public function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
     #[Route('/', name: 'admin')]
     // #[Route('/admin/demo.html.twig', name: 'demo')]
     public function index(): Response
     {
         // return parent::index();
-
-       return $this->render('admin/dashboard.html.twig');
+        /* $latestProducts = $this->productRepository
+        ->findLatest();
+        $latestCategory = $this->productRepository
+        ->findCategory(); */
+        return $this->render('admin/dashboard.html.twig');
+        // return $this->render('admin/demo.html.twig',['latestProducts'=>'$latestProducts','TopCategory'=>'$latestCategory']);
     //    return $this->render('admin/index3.html.twig');
+
+    
     }
 
     public function configureDashboard(): Dashboard
@@ -36,6 +52,8 @@ class DashboardController extends AbstractDashboardController
         ->renderContentMaximized()
         // ->showEntityActionsInlined()
         ->setPaginatorPageSize(5)
+        // ->overrideTemplate('crud/field/id', 'admin/field/id_with_icon.html.twig')
+        
         ;
     }
 
@@ -57,7 +75,10 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('PRODUCT');
         yield MenuItem::subMenu('Actions',"fa fa-bars")->setSubItems([
             MenuItem::linkToCrud('Add product', 'fas fa-plus', Product::class)->setAction(Crud::PAGE_NEW),
-            MenuItem::linkToCrud('Show product', 'fas fa-eye', Product::class),
+            MenuItem::linkToCrud('Show product', 'fas fa-eye', Product::class)->setController(ProductCrudController::class),
+            MenuItem::linkToCrud('Product non vendu', 'far fa-question-circle', Product::class)
+            //par defaut il va faire appel a setController(ProduitDeriveControler::class)
+            ->setController(ProduitDeriveControler::class)
         ]);
 
         yield MenuItem::section('Categorry');
