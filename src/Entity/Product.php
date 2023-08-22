@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Form\FormTypeInterface;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -27,7 +28,7 @@ class Product
     private ?string $content = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Category $Category = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
@@ -48,6 +49,9 @@ class Product
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'products')]
     private Collection $Tags;
 
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    private ?Comment $comments = null;
+
     public function __construct()
     {
         $this->Tags = new ArrayCollection();
@@ -66,6 +70,7 @@ class Product
     public function getContent(): ?string{return $this->content;}
 
     public function setContent(string $content): static{$this->content = $content;return $this;}
+    
 
     public function getCategory(): ?Category{return $this->Category;}
 
@@ -162,7 +167,19 @@ class Product
 
     public function __toString()
     {
-        return $this->name;
+        return $this->getName();
+    }
+
+    public function getComments(): ?Comment
+    {
+        return $this->comments;
+    }
+
+    public function setComments(?Comment $comments): static
+    {
+        $this->comments = $comments;
+
+        return $this;
     }
 
 

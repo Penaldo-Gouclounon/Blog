@@ -6,6 +6,7 @@ use App\Entity\Tag;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -33,7 +34,8 @@ class TagCrudController extends AbstractCrudController
             SlugField::new('slug')->setTargetFieldName('name')->setColumns(4)->setUnlockConfirmationMessage(
                 'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
             ),
-            AssociationField::new('products')->setCssClass('color:success')->setColumns(8),
+            CollectionField::new('products')->setCssClass('color:success')->setColumns(8)
+            ->renderExpanded(),
 
         ];
     }

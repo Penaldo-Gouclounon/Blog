@@ -1,0 +1,16 @@
+{% block body %}
+    <div class="col">
+        <div class="d-flex justify-content-between">
+            <h1 class="q-title-show">{{ product.name }}</h1>
+           <a class="text-white" href="{{ ea_url()
+                .setController('App\\Controller\\Admin\\ProductCrudController')
+                .setAction('edit')
+                .setEntityId(product.id)
+            }}">
+
+
+                <span class="fa fa-edit"></span>
+            </a>
+        </div>
+    </div>
+{% endblock %}

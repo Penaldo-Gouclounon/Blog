@@ -3,13 +3,15 @@
 namespace App\EventSubscriber;
 
 use App\Entity\Product;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeCrudActionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class HideActionSubscriber implements EventSubscriberInterface
 {
-    public function onBeforeCrudActionEvent($event): void
+    public function onBeforeCrudActionEvent(BeforeCrudActionEvent $event): void
     {
-        /* if (!$adminContext = $event->getAdminContext()) {
+        if (!$adminContext = $event->getAdminContext()) {
             return;
         }
         if (!$crudDto = $adminContext->getCrud()) {
@@ -18,20 +20,25 @@ class HideActionSubscriber implements EventSubscriberInterface
         if ($crudDto->getEntityFqcn() !== Product::class) {
             return;
         }
-        $question = $adminContext->getEntity()->getInstance();
+        $product = $adminContext->getEntity()->getInstance();
 
-        $question = $adminContext->getEntity()->getInstance();
-        if ($question instanceof Product && $question->setSold()) {
+        $product = $adminContext->getEntity()->getInstance();
+
+        if ($product instanceof Product && $product->isSold()) {
             $crudDto->getActionsConfig()->disableActions([Action::DELETE]);
-        } */
+        }
        
 
     }
 
-    public static function getSubscribedEvents(): array
+    /* public function onBeforeCrudActionEvent(BeforeCrudActionEvent $event)
+    {
+    } */
+    public static function getSubscribedEvents()
     {
         return [
-            'BeforeCrudActionEvent' => 'onBeforeCrudActionEvent',
+            BeforeCrudActionEvent::class => 'onBeforeCrudActionEvent',
         ];
     }
+
 }

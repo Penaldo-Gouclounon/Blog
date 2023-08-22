@@ -1,0 +1,14 @@
+easy:
+    admin:
+        actions:
+            delete: Supprimer
+        modal:
+            delete:
+                title: Supprimer cet element ?
+                content: Vous ete sur le point de supprimer cet produit
+                cancel: Annuler
+                submit: Je veux Supprimer cet element
+        flash:
+            delete:
+                success: La requête à bien été renvoyée
+                danger: La requête n'a pas pu être renvoyée

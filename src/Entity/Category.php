@@ -22,13 +22,13 @@ class Category
 
     #[ORM\Column(length: 255)]
 
-    /** 
-     * @Assert\Regex(pattern="/^[a-z0-9\-]+/$") 
-     */ 
+    // /** 
+    //  * @Assert\Regex(pattern="/^[a-z0-9\-]+/$") 
+    //  */ 
 
     private ?string $slug = null;
 
-    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class, )]
     private Collection $products;
 
     public function __construct()
@@ -62,7 +62,7 @@ class Category
         return $this;
     }
 
-    public function removeProduct(Product $product): static
+    public function removeProduct(Product $product): self
     {
         if ($this->products->removeElement($product)) {
             // set the owning side to null (unless already changed)

@@ -25,6 +25,7 @@ class DashboardController extends AbstractDashboardController
     }
 
     #[Route('/', name: 'admin')]
+    #[Route('produits/show.html.twig',name:'aaa')]
     // #[Route('/admin/demo.html.twig', name: 'demo')]
     public function index(): Response
     {
@@ -92,6 +93,8 @@ class DashboardController extends AbstractDashboardController
             MenuItem::linkToCrud('Add tag', 'fas fa-plus', Tag::class)->setAction(Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show tag', 'fas fa-eye', Tag::class),
         ]);
+
+        yield MenuItem::linkToUrl('link',null,'aa');
 
         // yield MenuItem::linkToRoute('link','fas fa-link','demo.html.twig');
 

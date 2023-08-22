@@ -13,7 +13,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Flex\Response;
 
 class ProduitDeriveControler extends ProductCrudController
 {
@@ -44,7 +46,7 @@ class ProduitDeriveControler extends ProductCrudController
         ->displayAsLink()
         ;
 
-        $approveAction = Action::new('approve')
+        /* $approveAction = Action::new('approve')
             ->addCssClass('btn btn-success')
             ->setIcon('fa fa-check-circle')
             ->displayAsButton()
@@ -52,37 +54,79 @@ class ProduitDeriveControler extends ProductCrudController
             ->setIcon('fa fa-check-circle')
             ->setLabel('Approove')
             ->linkToCrudAction('approve')
-            ->setTemplatePath('admin/approve_action.html.twig');
+            ->setTemplatePath('admin/approve_action.html.twig'); */
 
         return $actions
-            ->disable(Action::NEW)
+            // ->disable(Action::NEW)
             ->disable( Action::DELETE)
-            ->add(Crud::PAGE_INDEX,$supprimerAction,Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $approveAction)
-            ->reorder(Crud::PAGE_INDEX,[Action::EDIT])
+            ->add(Crud::PAGE_INDEX,Action::DETAIL)
+            ->add(Crud::PAGE_INDEX,$supprimerAction)
+            ->reorder(Crud::PAGE_INDEX,[Action::EDIT,Action::DETAIL])
+            ->update(Crud::PAGE_INDEX, Action::EDIT, function(Action $actions){
+                return $actions 
+                ->setIcon('fas fa-edit')
+                ->setLabel('Editer')
+                ->addCssClass('text-info')
+                ;
+            })
+            ->update(Crud::PAGE_INDEX, Action::EDIT, function(Action $actions){
+                return $actions 
+                ->setIcon('fas fa-edit')
+                ->setLabel('Editer')
+                ->addCssClass('text-info')
+                ;
+            })
         ;
     }
+    public function __construct(
+        private readonly AdminContextProvider $adminContextProvider,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly EntityManagerInterface $entityManager,
+        // private readonly RequestMessageService $requestMessageService,
+    ) {
+    }
 
-
-   
-
-    public function Supprimer(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
+    // public function Supprimer(AdminContext $adminContext, EntityManagerInterface $entityManager,  AdminUrlGenerator $adminUrlGenerator)
+    public function Supprimer(AdminContext $adminContext)
     {
+        $url = $this->adminUrlGenerator
+        ->setAction(Action::INDEX)
+        ->removeReferrer()
+        ->setController($adminContext->getCrud()?->getControllerFqcn() ?? '')->generateUrl();
+
+
+        /** @var Request|null $request */
         $question = $adminContext->getEntity()->getInstance();
         if (!$question instanceof Product) {
             throw new \LogicException('Entity is missing or not a Question');
         }
-       
-        $question->setSold(true);
-       
-        $entityManager->flush();
+        else {
+            $data = $question->getId();
+            // $data['sold'] = true;
+    
+            // $this->requestMessageService->dispatchFormRequest($data);
+    
+            $question->setName($data);
+            $question->setSold(true);
+            $this->entityManager->persist($question);
+            $this->entityManager->flush();
+            $this->addFlash('success','ttt', 'easy.admin.flash.delete.success');
+        }
 
-        $targetUrl = $adminUrlGenerator
+        // $this->addFlash('success', 'easy.admin.flash.delete.success');
+
+        // $question->setSold(true);
+       
+        // $entityManager->flush();
+        // $this->addFlash('success', 'Article supprimer');
+
+        /* $targetUrl = $adminUrlGenerator
         ->setController(self::class)
         ->setAction(Crud::PAGE_INDEX)
         ->setEntityId($question->getId())
         ->generateUrl();
-    return $this->redirect($targetUrl);
+    return $this->redirect($targetUrl); */
+    return $this->redirect($url);
 
     }
 }
