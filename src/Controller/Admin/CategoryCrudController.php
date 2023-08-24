@@ -39,9 +39,9 @@ class CategoryCrudController extends AbstractCrudController
              SlugField::new('slug')->setTargetFieldName(['name'])->setUnlockConfirmationMessage(
                 'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
             ),
-            CollectionField::new('products')
-                ->useEntryCrudForm(ProductType::class)
-                ->showEntryLabel()
+            CollectionField::new('product')
+                // ->useEntryCrudForm()
+                // ->showEntryLabel()
             // // ->useEntryCrudForm(),
 
             

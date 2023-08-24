@@ -52,7 +52,7 @@ class DashboardController extends AbstractDashboardController
         return Crud::new()
         ->renderContentMaximized()
         // ->showEntityActionsInlined()
-        ->setPaginatorPageSize(5)
+        ->setPaginatorPageSize(10)
         // ->overrideTemplate('crud/field/id', 'admin/field/id_with_icon.html.twig')
         
         ;
@@ -92,6 +92,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::subMenu('Actions',"fa fa-bars")->setSubItems([
             MenuItem::linkToCrud('Add tag', 'fas fa-plus', Tag::class)->setAction(Crud::PAGE_NEW),
             MenuItem::linkToCrud('Show tag', 'fas fa-eye', Tag::class),
+            MenuItem::linkToCrud('Derive de tag', 'far fa-question-circle', Tag::class)
+            //par defaut il va faire appel a setController(ProduitDeriveControler::class)
+            ->setController(TagDeriveControler::class)
         ]);
 
         yield MenuItem::linkToUrl('link',null,'aa');

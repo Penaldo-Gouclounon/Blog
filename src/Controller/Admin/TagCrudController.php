@@ -34,7 +34,7 @@ class TagCrudController extends AbstractCrudController
             SlugField::new('slug')->setTargetFieldName('name')->setColumns(4)->setUnlockConfirmationMessage(
                 'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
             ),
-            CollectionField::new('products')->setCssClass('color:success')->setColumns(8)
+            CollectionField::new('product')->setCssClass('color:success')->setColumns(8)
             ->renderExpanded(),
 
         ];

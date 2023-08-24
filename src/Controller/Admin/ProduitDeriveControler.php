@@ -15,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Flex\Response;
 
 class ProduitDeriveControler extends ProductCrudController
 {
@@ -66,13 +65,13 @@ class ProduitDeriveControler extends ProductCrudController
                 return $actions 
                 ->setIcon('fas fa-edit')
                 ->setLabel('Editer')
-                ->addCssClass('text-info')
+                ->addCssClass('text-warning')
                 ;
             })
-            ->update(Crud::PAGE_INDEX, Action::EDIT, function(Action $actions){
+            ->update(Crud::PAGE_INDEX, Action::DETAIL, function(Action $actions){
                 return $actions 
-                ->setIcon('fas fa-edit')
-                ->setLabel('Editer')
+                ->setIcon('fas fa-eye')
+                ->setLabel('Afficher')
                 ->addCssClass('text-info')
                 ;
             })

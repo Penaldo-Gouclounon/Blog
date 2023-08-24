@@ -7,7 +7,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 
 use App\Entity\Product;
-use Doctrine\ORM\Cache\CollectionCacheEntry;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -26,7 +25,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use PhpParser\ErrorHandler\Collecting;
 
 class ProductCrudController extends AbstractCrudController
 {
@@ -45,13 +43,10 @@ class ProductCrudController extends AbstractCrudController
     {
         return $crud
         ->setEntityLabelInSingular('Conference Comment')
-        ->setEntityLabelInPlural('Conference Comments')
-        /* ->setDefaultSort([
-            'sold.enabled' => 'ASC',
-        ]) */
+        ->setEntityLabelInPlural('Liste des produits')
+        ->setDefaultSort(['id' => 'DESC',])
         ;
     }
-
 
     public function configureActions(Actions $actions): Actions
     {
@@ -69,12 +64,35 @@ class ProductCrudController extends AbstractCrudController
                 return !$question->isSold();
             }); */
 
+        $sync = Action::new('sync')
+            ->setIcon('fa fa-tags')
+            ->displayAslink()
+            ->setLabel('Tags')
+            ->linkToCrudAction('sync')
+            ->setTemplatePath('admin/approve_action.html.twig')
+            ;
+
         return $actions
             // ->disable(Action::NEW)
             ->disable( Action::DELETE)
             ->add(Crud::PAGE_INDEX,Action::DETAIL)
+            ->add(Crud::PAGE_INDEX,$sync)
             ->reorder(Crud::PAGE_INDEX,[Action::EDIT])
         ;
+    }
+
+    public function sync(AdminContext $adminContext,AdminUrlGenerator $adminUrlGenerator)
+    {
+        $sync = $adminContext->getEntity()->getInstance();
+
+        $url = $adminUrlGenerator
+            ->setController(TagDeriveControler::class)
+            ->setAction(Action::INDEX)
+            ->setEntityId($sync->getId())
+            ->generateUrl();
+
+        return $this->redirect($url);
+
     }
 
     public function approve(AdminContext $adminContext, EntityManagerInterface $entityManager, AdminUrlGenerator $adminUrlGenerator)
@@ -133,7 +151,7 @@ class ProductCrudController extends AbstractCrudController
             // IntegerField::new('price')->setTemplatePath('admin/index.html.twig'),
              $price =    MoneyField::new('price')->setCurrency('EUR')->setColumns(3);
              $Category = AssociationField::new('Category')->setColumns(3)->autocomplete()->setCrudController(CategoryCrudController::class);
-             $Tags =    AssociationField::new('Tags')->setCssClass('color:success')->setColumns(3)->autocomplete();
+            //  $Tags =    AssociationField::new('Tags')->setCssClass('color:success')->setColumns(3)->autocomplete();
                 // ->onlyOnDetail();
                 
 
@@ -152,32 +170,67 @@ class ProductCrudController extends AbstractCrudController
 
         if(Crud::PAGE_DETAIL==$pageName)
         {
-            return [ 
-                // $name,$Category,$Tags
+            return[
                 TextField::new('name'),
                 AssociationField::new('Tags')->setCssClass('color:success'),
-                AssociationField::new('Category')->renderAsEmbeddedForm()
-                // CollectionField::new('Category')
+                CollectionField::new('Category')
+            ];
+
+        }
+
+        if(Crud::PAGE_INDEX==$pageName )
+        {
+            return [ 
+                // $name,$Category,$Tags
+                IdField::new('id'),
+                TextField::new('name')->setColumns(4),
+                CollectionField::new('Tags')->setCssClass('color:success'),
+                AssociationField::new('Category'),
+                MoneyField::new('price')->setCurrency('EUR')->setColumns(3)
             ];
         }
 
-        if(Crud::PAGE_INDEX==$pageName || Crud::PAGE_NEW)
+        if(Crud::PAGE_NEW==$pageName)
         {
             return [ 
                 // $name,$Category,$Tags
                 TextField::new('name')->setColumns(4),
-                CollectionField::new('Tags')->setCssClass('color:success'),
-                CollectionField::new('Category')->renderExpanded()
+                SlugField::new('slug')->setTargetFieldName(['name','Category'])->setColumns(4)->setUnlockConfirmationMessage(
+                    'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
+                ),
+                // CollectionField::new('Tags')->setCssClass('color:success'),
+                TextareaField::new('content','Description'),
+                AssociationField::new('Category'),
+                ImageField::new('image')
+                    ->setBasePath(self::PRODUCT_BASE_PATH)
+                    ->setUploadDir(self::PRODUCT_UPLOAD_DIR)
+                    ->setColumns('col-sm-7'),
+                MoneyField::new('price')->setCurrency('EUR')->setColumns(3),
+                DateTimeField::new('created_at')->setColumns(3),
+                BooleanField::new('sold')
             ];
         }
 
         if(Crud::PAGE_EDIT==$pageName)
         {
             // return [ $name,$Tags];
-            return[
-                TextField::new('name'),
-                AssociationField::new('Tags')->setCssClass('color:success'),
-                CollectionField::new('Category')
+
+            return [ 
+                // $name,$Category,$Tags
+                TextField::new('name')->setColumns(4),
+                SlugField::new('slug')->setTargetFieldName(['name','Category'])->setColumns(4)->setUnlockConfirmationMessage(
+                    'Il est fortement recommandé d\'utiliser les slugs automatiques, mais vous pouvez les personnaliser'
+                ),
+                // CollectionField::new('Tags')->setCssClass('color:success'),
+                TextareaField::new('content','Description'),
+                AssociationField::new('Category'),
+                ImageField::new('image')
+                    ->setBasePath(self::PRODUCT_BASE_PATH)
+                    ->setUploadDir(self::PRODUCT_UPLOAD_DIR)
+                    ->setColumns('col-sm-7'),
+                MoneyField::new('price')->setCurrency('EUR')->setColumns(3),
+                DateTimeField::new('created_at')->setColumns(3),
+                BooleanField::new('sold')
             ];
         }
         
@@ -212,3 +265,5 @@ class ProductCrudController extends AbstractCrudController
 
     
 }
+
+
